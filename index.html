@@ -26,6 +26,7 @@
         <button onclick="initApp()" class="w-full max-w-xs bg-blue-600 text-white py-6 rounded-3xl font-black shadow-2xl active:scale-95 transition-all text-xl">
             START SCANNING
         </button>
+        <p class="mt-6 text-slate-500 text-xs font-bold uppercase tracking-widest">Authorized Personnel Only</p>
     </div>
 
     <div class="max-w-md mx-auto p-4 space-y-4">
@@ -44,8 +45,14 @@
         <div id="form-container" class="bg-slate-800/40 p-5 rounded-3xl border border-slate-700/50 space-y-5 backdrop-blur-xl shadow-xl">
             <div class="space-y-4">
                 <div class="relative">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Assigned Driver</label>
-                    <input type="text" id="driver" required class="w-full bg-slate-900/80 p-4 rounded-2xl text-sm border border-slate-700 focus:border-blue-500 outline-none shadow-inner" placeholder="Enter driver name...">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 block">Assigned Driver</label>
+                        <button onclick="toggleList('driver')" class="expand-btn mr-2">LIST ▼</button>
+                    </div>
+                    <input list="drivers" id="driver" onchange="savePersistentData()" class="w-full bg-slate-900/80 p-4 rounded-2xl text-sm border border-slate-700 focus:border-blue-500 outline-none shadow-inner" placeholder="Search or select driver...">
+                    <datalist id="drivers">
+                        <option value="mohammed"><option value="kareem"><option value="kanjo"><option value="syamend"><option value="junaid">
+                    </datalist>
                 </div>
 
                 <div class="relative">
@@ -55,7 +62,165 @@
                     </div>
                     <input list="addresses" id="dropoff" onchange="savePersistentData()" dir="rtl" class="w-full bg-slate-900/80 p-4 rounded-2xl text-sm border border-slate-700 focus:border-blue-500 outline-none shadow-inner text-right font-medium" placeholder="گەڕان بۆ ناونیشان...">
                     <datalist id="addresses">
-                        <option value="بەڕێوەبەرایەتی گشتی تەندروستی هەولێر"><option value="بەڕێوەبەرایەتی گشتی ئاو و ئاوەڕۆ"><option value="سەنتەری مەلافەندی بۆ پزیشکی خێزانی"><option value="سەرۆکایەتی شارەوانی هیران"><option value="بەڕێوەبەرایەتی شوێنەوار و کەلەپووری هەولێر"><option value="بەریوەبەرایەتی نەخشە دانانی ئاوەدانی هەولێر"><option value="بنکەی تەندروستی نازدار بامەڕنی"><option value="بنکەی تەندروستی محمد باجلان"><option value="بەڕێوەبەرایەتی وەرشەی ناوەندی"><option value="سەرۆکایەتی شارەوانی کۆڕێ"><option value="سەرۆکایەتی شارەوانی دارەشەکران"><option value="بنکەی تەندروستی سەرکارێزی خێزانی"><option value="شارەوانی شەمامک"><option value="سەرۆکایەتی شارەوانی گوێڕ"><option value="سەرۆکایەتی شارەوانی کەورگۆسك"><option value="سەرۆکایەتی شارەوانی ڕزگاری"><option value="سەرۆکایەتی شارەوانی باسرمە"><option value="شارەوانی تەق تەق"><option value="شارەوانی سێبیران"><option value="سەرۆکایەتی شارەوانی بەستۆڕە"><option value="سەرۆکایەتی شارەوانی بالیسان"><option value="سەرۆکایەتی شارەوانی شاخۆلان"><option value="سەرۆکایەتی شارەوانی پیرمام"><option value="سەرۆکایەتی شارەوانی شاوێس"><option value="وەزارەتی شارەوانی و گەشتوگوزار"><option value="شارەوانی ئاشتی"><option value="شارەوانی خەبات"><option value="بەڕێوەبەرایەتی ئاوەڕۆی هەولێر"><option value="بەڕێوەبەرایەتی ئاوی دەوروبەری هەولێر"><option value="سەرۆکایەتی شارەوانی سێگردکان"><option value="شارەوانی شۆرش"><option value="بەڕێوەبەرایەتی ئاوی هەولێر"><option value="سەنتەری پسپۆری هەولێر بۆ دەم و ددان"><option value="سەنتەری سەروەران بۆ پزیشکی خێزانی"><option value="سەنتەری هێلینا بۆ نەشتەرگەری منداڵانی خاوەن پێداویستی تایبەت"><option value="بنکەی تەندروستی شاهید سۆران"><option value="بنکەی تەندروستی زانکۆی هەولێری پزیشکی"><option value="بنکەی تەندروستی زانکۆ"><option value="بنکەی تەندروستی ریفراندۆم"><option value="بەڕێوەبەرایەتی تەندروستی دەشتی هەولێر"><option value="بنکەی تەندروستی حەسارۆك"><option value="سەنتەری گەلیاوەی فێرکاری بۆ نەخۆشیەکانی شەکرە و کوێرە ڕژێنەکان"><option value="بنکەی تەندروستی گولان"><option value="سەرۆکایەتی شارەوانی دیبەگە"><option value="بنکەی تەندروستی شەهید دکتۆر حبیب مالح"><option value="بنکەی تەندروستی ژیان"><option value="بنکەی تەندروستی چاکسازی گەوران"><option value="بنکەی تەندروستی تەیراوا"><option value="بنکەی تەندروستی تورەق"><option value="بنکەی تەندروستی بێتواتەی نوێ"><option value="بنکەی تەندروستی هیوای شەهیدان"><option value="بنکەی تەندروستی هێلان"><option value="بنکەی پزیشکی دادوەر"><option value="بنكەی تەندروستی هەولێری نوێ"><option value="بنكەی تەندروستی کورانی عەنکاوە"><option value="بنكه ى ته ندروستى خيزانى برايه تى"><option value="شارەوانی کەسنەزان"><option value="سەرۆکایەتی شارەوانی هەریر"><option value="سەرۆکایەتی شارەوانی کانی قڕژاڵە"><option value="بەڕێوەبەرایەتی شارەوانی سێ"><option value="شارەوانی مەلا ئۆمەر"><option value="بەڕێوبەرایەتی ئەندازەی پارکەکان"><option value="بەرایەتی ژێنگەپارێزی شارەوانی"><option value="شارەوانی کۆیە"><option value="سەرۆکایەتی شارەوانی سفەیە"><option value="بەڕێوەبەرایەتی گشتی نەخشەدانانی ئاوەدانی"><option value="بەڕێوبەرایەتی پارکی سامی عبد الرحمن"><option value="سەرۆکایەتی شارەوانی قوشتەپە"><option value="بەڕێوەبەرایەتی گشتی شارەوانیەکانی هەولێر"><option value="بەڕێوەبەرایەتی شارەوانی شەش"><option value="بەڕێوەبەرایەتی گشتی شوێنەواروکەلەپوور"><option value="بەڕێوەبەرایەتی شارەوانی پێنج"><option value="دەستەی گەشتوگوزار"><option value="بەڕێوەبەرایەتی شارەوانی جوار"><option value="سەرۆکایەتی شارەوانی سەری بڵند"><option value="بەڕێوەبەرایەتی شارەوانی دوو"><option value="شارەوانی بەنسڵاوە"><option value="سەرۆکایەتی شارەوانیەکانی هەولێر"><option value="بەڕێوەبەرایەتی شارەوانی یەك"><option value="شارەوانی شەقڵاوە"><option value="سەرۆکایەتی شارەوانی پیرزین"><option value="شارەوانی بەحرکە"><option value="سەرۆکایەتی شارەوانی دارەتوو"><option value="شارەوانی عەنکاوە"><option value="بنکەی تەندروستی عنکاوەی نوێ"><option value="بنکەی تەندروستی کۆلیژی پۆلیس"><option value="بنکەی تەندروستی کاوە"><option value="بنکەی تەندروستی کوردستان"><option value="بنکەی تەندروستی کورانی عنکاوە"><option value="بنکەی تەندروستی شەهیدان"><option value="بەڕێوە بەرایەتی تەندروستی خەبات"><option value="بنکەی تەندروستی گرتن و گواستنەوە"><option value="بنکەی تەندروستی نەوجەوانان"><option value="بنکەی تەندروستی د. نافع ئاکرەیی"><option value="پێداویستی پزیشکی"><option value="پەیمانگای پزیشکی دادوەری"><option value="سەنتەری پیست"><option value="بەڕێوەبەرایەتی بانکی خوێن"><option value="سەنتەری خانزاد بۆ دەم و ددان"><option value="سەنتەری تالاسیمیا گەرەکی ڕۆناکی"><option value="سەنتەری دڵ"><option value="سەنتەری نەخۆشیەکانی سینگ و هەناسە"><option value="پاراستنی تەندروستی (وقایە)"><option value="بنکەی تەندروستی ئاسایش"><option value="بەڕێوەبەری تاقیگەی تەندروستی گشتی"><option value="بەڕێوەبەرایەتی تەندروستی فڕۆكەخانە"><option value="بەڕابەرایەتی تەندروستی شقlaوە"><option value="بنکەی تەندروستی نەخۆشخانەی سوتان"><option value="بنکەی تەندروستی نەورۆز"><option value="بنکەی تەندروستی بەحرکە"><option value="وەزارەتی کاروکاروباری کۆمەڵایەتی"><option value="ئەنجومەنی دادوەری هەرێم"><option value="سەرۆکایەتی دادگای تێهەڵچوونەوەی ناوچەی هەولێر"><option value="بەڕێوەبەرایەتی گشتی خانەنشین"><option value="دادگای بەرایی هەولێر (١)"><option value="وەزارەتی پلاندانان"><option value="وەزارەتی کارەبا"><option value="نوسینگەی ڕاوێژکاری پاوانی ڕێگا"><option value="وه‌زاره‌تی ڕۆشه‌نبیری و لاوان"><option value="فەرمانگەی پەیوەندیەکانی دەرەوەی حکومەتی هەرێمی کوردستان"><option value="وەزارەتی پێشمەرگە"><option value="وەزارەتی کاروباری شەهیدان"><option value="وەزارەتی پەروەردە"><option value="بەڕێوەبەرایەتی گشتی کشتوکاڵی هەولێر"><option value="کۆمسیۆنی باڵای سەربەخۆی هەڵبژاردنەکان"><option value="بەڕێوبەرایەتی پیشەسازی هەولێر"><option value="بەڕێوەبەرایەتی ئاودێری هەولێر"><option value="قائمقامیەتی قەزای ناوەندی هەولێر"><option value="بەڕێوەبەرایەتی تۆمارکردنی خانوبەرەی هەولێر - یەك"><option value="سەنتەری ئازادی بۆ دەم و ددان"><option value="وەزارەتی خوێندنی باڵا و توێژینەوەی زانستی"><option value="بنکەی تەندروستی ئازادی خێزانی"><option value="بەڕێوبەرایەتی گشتی ژمێرکاری"><option value="گەنجینەی هەرێم"><option value="بەڕێوەبەرایەتی گشتی بودجه"><option value="سەرۆکایەتی داواکاری گشتی"><option value="بەڕێوەبەرایەتی گەنجینەی هەولێر"><option value="بەڕێوەبەرایەتی جێبەجێ کردنی هەولێر - دوو"><option value="بانکی منارە"><option value="کەرتی شەقلاوە"><option value="نەخۆشخانەی ڕزگاری فێرکاری"><option value="نەخۆشخانەی هەولێری فێرکاری"><option value="هۆبەی ئالیاتی تەندروستی هەولێر"><option value="نەخۆشخانەی چاوی هەولێری فێرکاری"><option value="نەخۆشخانەی بەحرکە بۆ نەخۆشیەکانی هەناو"><option value="مەئمون دەباغ بۆ پشکنینی پێش هاوسەرگیری"><option value="بەریوەبەرایەتی گشتی کاروباری یاسایی"><option value="وەزارەتی گواستەنەوەو گەیاندن"><option value="دەستەی دەسپاکی"><option value="بنکەی تەندروستی هاوکاری"><option value="نەخۆشخانەی ڕاپەڕینی فێرکاری بۆ منداڵان"><option value="بەڕێوەبەرایەتی جێبەجێ کردنی هەولێر - یەك"><option value="بەڕێوەبەرایەتی جێبەجێ کردنی هەولێر - سێ"><option value="نەخۆشخانەی پێشمەڕگە"><option value="وەرزارەتی داد"><option value="نەخۆشخانەی پیرمام"><option value="لێژنەی پزیشکی"><option value="نەخۆشخانەی لە دایك بوون و ئافرەتانی فێرکاری"><option value="نەخۆشخانەی نانەکەلی">
+                        <option value="بەڕێوەبەرایەتی گشتی تەندروستی هەولێر">
+<option value="بەڕێوەبەرایەتی گشتی ئاو و ئاوەڕۆ">
+<option value="سەنتەری مەلافەندی بۆ پزیشکی خێزانی">
+<option value="سەرۆکایەتی شارەوانی هیران">
+<option value="بەڕێوەبەرایەتی شوێنەوار و کەلەپووری هەولێر">
+<option value="بەریوەبەرایەتی نەخشە دانانی ئاوەدانی هەولێر">
+<option value="بنکەی تەندروستی نازدار بامەڕنی">
+<option value="بنکەی تەندروستی محمد باجلان">
+<option value="بەڕێوەبەرایەتی وەرشەی ناوەندی">
+<option value="سەرۆکایەتی شارەوانی کۆڕێ">
+<option value="سەرۆکایەتی شارەوانی دارەشەکران">
+<option value="بنکەی تەندروستی سەرکارێزی خێزانی">
+<option value="شارەوانی شەمامک">
+<option value="سەرۆکایەتی شارەوانی گوێڕ">
+<option value="سەرۆکایەتی شارەوانی کەورگۆسك">
+<option value="سەرۆکایەتی شارەوانی ڕزگاری">
+<option value="سەرۆکایەتی شارەوانی باسرمە">
+<option value="شارەوانی تەق تەق">
+<option value="شارەوانی سێبیران">
+<option value="سەرۆکایەتی شارەوانی بەستۆڕە">
+<option value="سەرۆکایەتی شارەوانی بالیسان">
+<option value="سەرۆکایەتی شارەوانی شاخۆلان">
+<option value="سەرۆکایەتی شارەوانی پیرمام">
+<option value="سەرۆکایەتی شارەوانی شاوێس">
+<option value="وەزارەتی شارەوانی و گەشتوگوزار">
+<option value="شارەوانی ئاشتی">
+<option value="شارەوانی خەبات">
+<option value="بەڕێوەبەرایەتی ئاوەڕۆی هەولێر">
+<option value="بەڕێوەبەرایەتی ئاوی دەوروبەری هەولێر">
+<option value="سەرۆکایەتی شارەوانی سێگردکان">
+<option value="شارەوانی شۆرش">
+<option value="بەڕێوەبەرایەتی ئاوی هەولێر">
+<option value="سەنتەری پسپۆری هەولێر بۆ دەم و ددان">
+<option value="سەنتەری سەروەران بۆ پزیشکی خێزانی">
+<option value="سەنتەری هێلینا بۆ نەشتەرگەری منداڵانی خاوەن پێداویستی تایبەت">
+<option value="بنکەی تەندروستی شاهید سۆران">
+<option value="بنکەی تەندروستی زانکۆی هەولێری پزیشکی">
+<option value="بنکەی تەندروستی زانکۆ">
+<option value="بنکەی تەندروستی ریفراندۆم">
+<option value="بەڕێوەبەرایەتی تەندروستی دەشتی هەولێر">
+<option value="بنکەی تەندروستی حەسارۆك">
+<option value="سەنتەری گەلیاوەی فێرکاری بۆ نەخۆشیەکانی شەکرە و کوێرە ڕژێنەکان">
+<option value="بنکەی تەندروستی گولان">
+<option value="سەرۆکایەتی شارەوانی دیبەگە">
+<option value="بنکەی تەندروستی شەهید دکتۆر حبیب مالح">
+<option value="بنکەی تەندروستی ژیان">
+<option value="بنکەی تەندروستی چاکسازی گەوران">
+<option value="بنکەی تەندروستی تەیراوا">
+<option value="بنکەی تەندروستی تورەق">
+<option value="بنکەی تەندروستی بێتواتەی نوێ">
+<option value="بنکەی تەندروستی هیوای شەهیدان">
+<option value="بنکەی تەندروستی هێلان">
+<option value="بنکەی پزیشکی دادوەر">
+<option value="بنكەی تەندروستی هەولێری نوێ">
+<option value="بنكەی تەندروستی کورانی عەنکاوە">
+<option value="بنكه ى ته ندروستى خيزانى برايه تى">
+<option value="شارەوانی کەسنەزان">
+<option value="سەرۆکایەتی شارەوانی هەریر">
+<option value="سەرۆکایەتی شارەوانی کانی قڕژاڵە">
+<option value="بەڕێوەبەرایەتی شارەوانی سێ">
+<option value="شارەوانی مەلا ئۆمەر">
+<option value="بەڕێوبەرایەتی ئەندازەی پارکەکان">
+<option value="بەرایەتی ژێنگەپارێزی شارەوانی">
+<option value="شارەوانی کۆیە">
+<option value="سەرۆکایەتی شارەوانی سفەیە">
+<option value="بەڕێوەبەرایەتی گشتی نەخشەدانانی ئاوەدانی">
+<option value="بەڕێوبەرایەتی پارکی سامی عبد الرحمن">
+<option value="سەرۆکایەتی شارەوانی قوشتەپە">
+<option value="بەڕێوەبەرایەتی گشتی شارەوانیەکانی هەولێر">
+<option value="بەڕێوەبەرایەتی شارەوانی شەش">
+<option value="بەڕێوەبەرایەتی گشتی شوێنەواروکەلەپوور">
+<option value="بەڕێوەبەرایەتی شارەوانی پێنج">
+<option value="دەستەی گەشتوگوزار">
+<option value="بەڕێوەبەرایەتی شارەوانی جوار">
+<option value="سەرۆکایەتی شارەوانی سەری بڵند">
+<option value="بەڕێوەبەرایەتی شارەوانی دوو">
+<option value="شارەوانی بەنسڵاوە">
+<option value="سەرۆکایەتی شارەوانیەکانی هەولێر">
+<option value="بەڕێوەبەرایەتی شارەوانی یەك">
+<option value="شارەوانی شەقڵاوە">
+<option value="سەرۆکایەتی شارەوانی پیرزین">
+<option value="شارەوانی بەحرکە">
+<option value="سەرۆکایەتی شارەوانی دارەتوو">
+<option value="شارەوانی عەنکاوە">
+<option value="بنکەی تەندروستی عنکاوەی نوێ">
+<option value="بنکەی تەندروستی کۆلیژی پۆلیس">
+<option value="بنکەی تەندروستی کاوە">
+<option value="بنکەی تەندروستی کوردستان">
+<option value="بنکەی تەندروستی کورانی عنکاوە">
+<option value="بنکەی تەندروستی شەهیدان">
+<option value="بەڕێوە بەرایەتی تەندروستی خەبات">
+<option value="بنکەی تەندروستی گرتن و گواستنەوە">
+<option value="بنکەی تەندروستی نەوجەوانان">
+<option value="بنکەی تەندروستی د. نافع ئاکرەیی">
+<option value="پێداویستی پزیشکی">
+<option value="پەیمانگای پزیشکی دادوەری">
+<option value="سەنتەری پیست">
+<option value="بەڕێوەبەرایەتی بانکی خوێن">
+<option value="سەنتەری خانزاد بۆ دەم و ددان">
+<option value="سەنتەری تالاسیمیا گەرەکی ڕۆناکی">
+<option value="سەنتەری دڵ">
+<option value="سەنتەری نەخۆشیەکانی سینگ و هەناسە">
+<option value="پاراستنی تەندروستی (وقایە)">
+<option value="بنکەی تەندروستی ئاسایش">
+<option value="بەڕێوەبەری تاقیگەی تەندروستی گشتی">
+<option value="بەڕێوەبەرایەتی تەندروستی فڕۆكەخانە">
+<option value="بەڕابەرایەتی تەندروستی شقلاوە">
+<option value="بنکەی تەندروستی نەخۆشخانەی سوتان">
+<option value="بنکەی تەندروستی نەورۆز">
+<option value="بنکەی تەندروستی بەحرکە">
+<option value="وەزارەتی کاروکاروباری کۆمەڵایەتی">
+<option value="ئەنجومەنی دادوەری هەرێم">
+<option value="سەرۆکایەتی دادگای تێهەڵچوونەوەی ناوچەی هەولێر">
+<option value="بەڕێوەبەرایەتی گشتی خانەنشین">
+<option value="دادگای بەرایی هەولێر (١)">
+<option value="وەزارەتی پلاندانان">
+<option value="وەزارەتی کارەبا">
+<option value="نوسینگەی ڕاوێژکاری پاوانی ڕێگا">
+<option value="وه‌زاره‌تی ڕۆشه‌نبیری و لاوان">
+<option value="فەرمانگەی پەیوەندیەکانی دەرەوەی حکومەتی هەرێمی کوردستان">
+<option value="وەزارەتی پێشمەرگە">
+<option value="وەزارەتی کاروباری شەهیدان">
+<option value="وەزارەتی پەروەردە">
+<option value="بەڕێوەبەرایەتی گشتی کشتوکاڵی هەولێر">
+<option value="کۆمسیۆنی باڵای سەربەخۆی هەڵبژاردنەکان">
+<option value="بەڕێوبەرایەتی پیشەسازی هەولێر">
+<option value="بەڕێوەبەرایەتی ئاودێری هەولێر">
+<option value="قائمقامیەتی قەزای ناوەندی هەولێر">
+<option value="بەڕێوەبەرایەتی تۆمارکردنی خانوبەرەی هەولێر - یەك">
+<option value="سەنتەری ئازادی بۆ دەم و ددان">
+<option value="وەزارەتی خوێندنی باڵا و توێژینەوەی زانستی">
+<option value="بنکەی تەندروستی ئازادی خێزانی">
+<option value="بەڕێوبەرایەتی گشتی ژمێرکاری">
+<option value="گەنجینەی هەرێم">
+<option value="بەڕێوەبەرایەتی گشتی بودجه">
+<option value="سەرۆکایەتی داواکاری گشتی">
+<option value="بەڕێوەبەرایەتی گەنجینەی هەولێر">
+<option value="بەڕێوەبەرایەتی جێبەجێ کردنی هەولێر - دوو">
+<option value="بانکی منارە">
+<option value="کەرتی شەقلاوە">
+<option value="نەخۆشخانەی ڕزگاری فێرکاری">
+<option value="نەخۆشخانەی هەولێری فێرکاری">
+<option value="هۆبەی ئالیاتی تەندروستی هەولێر">
+<option value="نەخۆشخانەی چاوی هەولێری فێرکاری">
+<option value="نەخۆشخانەی بەحرکە بۆ نەخۆشیەکانی هەناو">
+<option value="مەئمون دەباغ بۆ پشکنینی پێش هاوسەرگیری">
+<option value="بەریوەبەرایەتی گشتی کاروباری یاسایی">
+<option value="وەزارەتی گواستەنەوەو گەیاندن">
+<option value="دەستەی دەسپاکی">
+<option value="بنکەی تەندروستی هاوکاری">
+<option value="نەخۆشخانەی ڕاپەڕینی فێرکاری بۆ منداڵان">
+<option value="بەڕێوەبەرایەتی جێبەجێ کردنی هەولێر - یەك">
+<option value="بەڕێوەبەرایەتی جێبەجێ کردنی هەولێر - سێ">
+<option value="نەخۆشخانەی پێشمەڕگە">
+<option value="وەرزارەتی داد">
+<option value="نەخۆشخانەی پیرمام">
+<option value="لێژنەی پزیشکی">
+<option value="نەخۆشخانەی لە دایك بوون و ئافرەتانی فێرکاری">
+<option value="نەخۆشخانەی نانەکەلی">
                     </datalist>
                 </div>
 
@@ -73,6 +238,7 @@
             <button onclick="submitData()" id="btn-submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-5 rounded-2xl font-black shadow-lg active:scale-[0.98] transition-all uppercase tracking-widest text-sm flex items-center justify-center gap-2">
                 <span>SUBMIT & SYNC TO CLOUD</span>
             </button>
+            <button onclick="clearSession()" class="w-full text-slate-600 text-[9px] font-bold uppercase tracking-widest pt-2 hover:text-rose-400 transition-colors">Clear Saved Driver / Address</button>
         </div>
 
         <div class="bg-slate-900/80 p-5 rounded-3xl border border-slate-800 shadow-lg">
@@ -81,7 +247,7 @@
                 <span class="text-blue-500">Last 5</span>
             </h3>
             <div id="history-list" class="space-y-3">
-                <div class="text-slate-700 text-xs italic text-center py-2">Scanner ready...</div>
+                <div class="text-slate-700 text-xs italic text-center py-2">Scanner ready for first entry...</div>
             </div>
         </div>
     </div>
@@ -98,12 +264,13 @@
         async function initApp() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             document.getElementById('camera-gate').classList.add('hidden');
+            if(localStorage.getItem('g2g_driver')) document.getElementById('driver').value = localStorage.getItem('g2g_driver');
             if(localStorage.getItem('g2g_address')) document.getElementById('dropoff').value = localStorage.getItem('g2g_address');
             try {
                 const response = await fetch(`${GOOGLE_URL}?action=getSettings`);
                 const data = await response.json();
                 existingIDs = data.existingIDs;
-            } catch (e) { console.log("Offline mode."); }
+            } catch (e) { console.log("Offline Check active."); }
             startScanner();
         }
 
@@ -114,7 +281,17 @@
         }
 
         function savePersistentData() {
+            localStorage.setItem('g2g_driver', document.getElementById('driver').value);
             localStorage.setItem('g2g_address', document.getElementById('dropoff').value);
+        }
+
+        function clearSession() {
+            if(confirm("Wipe saved driver and address?")) {
+                localStorage.removeItem('g2g_driver');
+                localStorage.removeItem('g2g_address');
+                document.getElementById('driver').value = "";
+                document.getElementById('dropoff').value = "";
+            }
         }
 
         function playBeep(freq = 900) {
@@ -183,7 +360,7 @@
             document.getElementById('history-title-text').innerText = m === 'single' ? "Session History" : "Batch Queue";
             scanBuffer = [];
             document.getElementById('ref-id').value = "";
-            document.getElementById('history-list').innerHTML = `<div class="text-slate-700 text-xs italic text-center py-2">Ready...</div>`;
+            document.getElementById('history-list').innerHTML = `<div class="text-slate-700 text-xs italic text-center py-2">Scanner ready...</div>`;
         }
 
         function showSuccessToast() {
@@ -200,7 +377,7 @@
             const finalId = currentMode === 'single' ? idValue : scanBuffer.join(', ');
 
             if (!driver || !address || (!finalId && scanBuffer.length === 0)) {
-                alert("⚠️ Error: Missing Driver, Address, or Scans."); return;
+                alert("⚠️ Error: Missing Information."); return;
             }
 
             const btn = document.getElementById('btn-submit');
@@ -209,18 +386,15 @@
             const payload = { id: finalId, driver, dropoff: address, mode: currentMode, notes: notes };
 
             try {
-                // Post to Google Script
                 await fetch(GOOGLE_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-                
                 showSuccessToast();
-                
                 if (currentMode === 'single') {
                     updateHistory(finalId);
-                    // RESET EVERYTHING FOR NEXT ENTRY
                     document.getElementById('driver').value = "";
                     document.getElementById('dropoff').value = "";
                     document.getElementById('ref-id').value = "";
                     document.getElementById('notes').value = "";
+                    localStorage.removeItem('g2g_driver');
                     localStorage.removeItem('g2g_address');
                     existingIDs.push(finalId);
                 } else {
@@ -230,9 +404,7 @@
                     document.getElementById('notes').value = "";
                 }
                 if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
-            } catch (e) { 
-                alert("Sync Error. Check your Internet or Google Script URL."); 
-            }
+            } catch (e) { alert("Sync Error."); }
             btn.innerHTML = `<span>SUBMIT & SYNC TO CLOUD</span>`; btn.disabled = false;
         }
     </script>
