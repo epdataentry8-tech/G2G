@@ -12,9 +12,14 @@
         .duplicate-flash { animation: shake 0.5s ease-in-out; border: 4px solid #ef4444 !important; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         input::placeholder { color: #475569; }
+        /* Success Pop-up Style */
+        #success-popup { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 200; background: #10b981; color: white; padding: 15px 30px; border-radius: 50px; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: slideDown 0.5s ease; }
+        @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-10 font-sans">
+
+    <div id="success-popup">✅ SUBMISSION SUCCESSFUL!</div>
 
     <div id="camera-gate" class="fixed inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-center p-8 text-center">
         <h2 class="text-3xl font-black mb-6 uppercase tracking-tighter">G2G <span class="text-blue-500">Scanner</span></h2>
@@ -67,10 +72,15 @@
                         <option value="بەڕێوەبەرایەتی وەرشەی ناوەندی">
                     </datalist>
                 </div>
+
+                <div class="relative">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Notes (Optional)</label>
+                    <input id="notes" class="w-full bg-slate-900/80 p-4 rounded-2xl text-sm border border-slate-700 focus:border-blue-500 outline-none shadow-inner" placeholder="Add additional info...">
+                </div>
             </div>
 
             <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700/30">
-                <label class="text-[10px] font-bold text-blue-500 uppercase block mb-1">Active Reference ID</label>
+                <label class="text-[10px] font-bold text-blue-500 uppercase block mb-1" id="id-display-label">Active Reference ID</label>
                 <input id="ref-id" readonly class="w-full bg-transparent text-2xl font-mono font-black text-blue-400 outline-none tracking-wider" placeholder="WAITING...">
             </div>
 
@@ -83,7 +93,7 @@
 
         <div class="bg-slate-900/80 p-5 rounded-3xl border border-slate-800 shadow-lg">
             <h3 class="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-[0.2em] flex justify-between">
-                <span>Session History</span>
+                <span id="history-label">Session History</span>
                 <span class="text-blue-500">Last 5</span>
             </h3>
             <div id="history-list" class="space-y-3">
@@ -93,7 +103,6 @@
     </div>
 
     <script>
-        // PASTE YOUR UPDATED GOOGLE DEPLOYMENT URL HERE
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbyxzLAkTQ2X4AUhlz2P7WT9zJ0EFfeUAnPA8aIXcJS5ezyPTNYwakcPuADuv9QE1jrb/exec";
         
         let currentMode = 'single';
@@ -107,11 +116,9 @@
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             document.getElementById('camera-gate').classList.add('hidden');
             
-            // Load persistent data from Browser Memory
             if(localStorage.getItem('g2g_driver')) document.getElementById('driver').value = localStorage.getItem('g2g_driver');
             if(localStorage.getItem('g2g_address')) document.getElementById('dropoff').value = localStorage.getItem('g2g_address');
 
-            // Fetch list of already scanned IDs from the sheet to prevent duplicates
             try {
                 const response = await fetch(`${GOOGLE_URL}?action=getSettings`);
                 const data = await response.json();
@@ -137,11 +144,11 @@
             }
         }
 
-        function playBeep() {
+        function playBeep(freq = 900) {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.frequency.value = 900;
+            osc.frequency.value = freq;
             gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
             osc.start(); osc.stop(audioCtx.currentTime + 0.4);
         }
@@ -154,35 +161,37 @@
         function onScan(text) {
             const container = document.getElementById('form-container');
             
-            // Duplicate Logic
+            // DO NOT SCAN IF DUPLICATED (Flag Duplicate)
             if (existingIDs.includes(text) || scanBuffer.includes(text)) {
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                playBeep(300); // Lower tone for error
                 container.classList.add('duplicate-flash');
                 setTimeout(() => container.classList.remove('duplicate-flash'), 500);
                 return; 
             }
 
-            document.getElementById('ref-id').value = text;
-            playBeep();
-            if (navigator.vibrate) navigator.vibrate(100);
-
-            if (currentMode === 'batch') {
+            if (currentMode === 'single') {
+                document.getElementById('ref-id').value = text;
+            } else {
+                // BATCH MODE: Keep IDs until submit
                 if(!scanBuffer.includes(text)) {
                     scanBuffer.push(text);
-                    updateHistory(text, "In Batch");
+                    updateHistoryUI(); // Update list visual
                 }
             }
+
+            playBeep();
+            if (navigator.vibrate) navigator.vibrate(100);
         }
 
-        function updateHistory(id, status = "Ready") {
-            history.unshift({ id, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
-            if (history.length > 5) history.pop();
-            
+        function updateHistoryUI() {
             const list = document.getElementById('history-list');
-            list.innerHTML = history.map(h => `
-                <div class="flex justify-between items-center bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 animate-in fade-in duration-500">
-                    <span class="text-blue-400 font-black font-mono tracking-tighter">${h.id}</span>
-                    <span class="text-[10px] text-slate-500 font-bold">${h.time}</span>
+            document.getElementById('ref-id').value = `BATCH: ${scanBuffer.length} ITEMS`;
+            
+            list.innerHTML = scanBuffer.slice().reverse().slice(0, 5).map(id => `
+                <div class="flex justify-between items-center bg-blue-500/10 p-3 rounded-xl border border-blue-500/20">
+                    <span class="text-blue-400 font-black font-mono tracking-tighter">${id}</span>
+                    <span class="text-[10px] text-blue-500 font-bold italic">Queued</span>
                 </div>
             `).join('');
         }
@@ -191,17 +200,31 @@
             currentMode = m;
             document.getElementById('btn-s').className = m === 'single' ? "flex-1 py-2.5 text-xs font-black rounded-xl active-mode" : "flex-1 py-2.5 text-xs font-black rounded-xl text-slate-500";
             document.getElementById('btn-b').className = m === 'batch' ? "flex-1 py-2.5 text-xs font-black rounded-xl active-mode" : "flex-1 py-2.5 text-xs font-black rounded-xl text-slate-500";
+            document.getElementById('id-display-label').innerText = m === 'single' ? "Active Reference ID" : "Batch Items Scanned";
+            document.getElementById('history-label').innerText = m === 'single' ? "Session History" : "Batch Queue";
+            
             scanBuffer = [];
             document.getElementById('ref-id').value = "";
+            document.getElementById('history-list').innerHTML = `<div class="text-slate-700 text-xs italic text-center py-2">Scanner ready for ${m} mode...</div>`;
+        }
+
+        function showSuccess() {
+            const popup = document.getElementById('success-popup');
+            popup.style.display = 'block';
+            setTimeout(() => { popup.style.display = 'none'; }, 3000);
         }
 
         async function submitData() {
             const driver = document.getElementById('driver').value;
             const address = document.getElementById('dropoff').value;
-            const id = document.getElementById('ref-id').value;
+            const notes = document.getElementById('notes').value;
+            let idValue = document.getElementById('ref-id').value;
 
-            if (!driver || !address || (!id && scanBuffer.length === 0)) {
-                alert("⚠️ Error: Check Driver, Address, and Scan ID.");
+            // In batch mode, we send the buffer joined by commas
+            const finalId = currentMode === 'single' ? idValue : scanBuffer.join(', ');
+
+            if (!driver || !address || (!finalId && scanBuffer.length === 0)) {
+                alert("⚠️ Error: Missing Driver, Address, or Scan.");
                 return;
             }
 
@@ -210,30 +233,43 @@
             btn.disabled = true;
 
             const payload = {
-                id: currentMode === 'single' ? id : scanBuffer.join(', '),
+                id: finalId,
                 driver, 
                 dropoff: address, 
-                mode: currentMode
+                mode: currentMode,
+                notes: notes
             };
 
             try {
-                // Using no-cors for GitHub -> Google Cloud communication
                 await fetch(GOOGLE_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
                 
-                if(currentMode === 'single') updateHistory(id);
-                
+                showSuccess(); // NOTIFICATION POP UP SUCCESS
+
                 // Add to local duplicate check list
-                existingIDs.push(...(currentMode === 'single' ? [id] : scanBuffer));
+                if (currentMode === 'single') existingIDs.push(finalId);
+                else existingIDs.push(...scanBuffer);
                 
-                // Reset Scan Field
-                document.getElementById('ref-id').value = "";
-                scanBuffer = [];
+                // RESET LOGIC
+                if (currentMode === 'single') {
+                    // RESET DRIVER AND ADDRESS AFTER SINGLE SUCCESS
+                    document.getElementById('driver').value = "";
+                    document.getElementById('dropoff').value = "";
+                    document.getElementById('ref-id').value = "";
+                    document.getElementById('notes').value = "";
+                    localStorage.removeItem('g2g_driver');
+                    localStorage.removeItem('g2g_address');
+                } else {
+                    // RESET BATCH DATA ONLY
+                    scanBuffer = [];
+                    document.getElementById('ref-id').value = "";
+                    document.getElementById('notes').value = "";
+                    document.getElementById('history-list').innerHTML = `<div class="text-emerald-500 text-xs font-bold text-center py-2">Batch Sync Complete!</div>`;
+                }
                 
-                // Success Vibration
                 if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
                 
             } catch (e) { 
-                alert("Cloud Connection Lost. Check Internet."); 
+                alert("Cloud Connection Lost."); 
             }
 
             btn.innerHTML = `<span>SUBMIT & SYNC TO CLOUD</span>`;
