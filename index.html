@@ -3,93 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>G2G Cloud Scanner</title>
+    <title>G2G Master Scanner</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .active-mode { border: 2px solid #3b82f6; background: #eff6ff; color: #1e40af; }
+        #reader { width: 100% !important; border-radius: 1.5rem; overflow: hidden; background: #000; }
+        #reader video { object-fit: cover; }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-100 p-4 min-h-screen">
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-10">
 
-    <div class="max-w-md mx-auto space-y-6">
-        <header class="flex justify-between items-center py-2 border-b border-slate-800">
-            <h1 class="text-xl font-black tracking-tighter">G2G <span class="text-blue-500">CLOUD</span></h1>
-            <span id="status" class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono">OFFLINE</span>
+    <div id="camera-gate" class="fixed inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-center p-8 text-center">
+        <div class="mb-6 bg-blue-500/10 p-6 rounded-full">
+            <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </div>
+        <h2 class="text-2xl font-black mb-2">Camera Access Required</h2>
+        <p class="text-slate-400 text-sm mb-8">Tap below to enable the scanner and start processing items.</p>
+        <button onclick="initApp()" class="w-full max-w-xs bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl font-black shadow-xl shadow-blue-900/40 transition-all active:scale-95">
+            OPEN SCANNER
+        </button>
+    </div>
+
+    <div class="max-w-md mx-auto p-4 space-y-4">
+        <header class="flex justify-between items-center py-2">
+            <h1 class="text-xl font-black tracking-tighter">G2G <span class="text-blue-500">MASTER</span></h1>
+            <div id="status-pill" class="text-[10px] bg-slate-800 px-3 py-1 rounded-full text-slate-400 font-bold uppercase tracking-widest">Ready</div>
         </header>
 
-        <div id="reader" class="rounded-3xl overflow-hidden bg-black border-2 border-slate-800 shadow-2xl"></div>
+        <div class="flex bg-slate-800 p-1 rounded-2xl border border-slate-700">
+            <button id="btn-s" onclick="setMode('single')" class="flex-1 py-3 text-xs font-black rounded-xl active-mode transition-all">SINGLE</button>
+            <button id="btn-b" onclick="setMode('batch')" class="flex-1 py-3 text-xs font-black rounded-xl text-slate-500 transition-all">BATCH</button>
+        </div>
+
+        <div id="reader" class="shadow-2xl border-2 border-slate-800"></div>
 
         <div class="bg-slate-800/50 p-5 rounded-3xl border border-slate-700 space-y-4 backdrop-blur-md">
-            <div class="flex bg-slate-900 p-1 rounded-xl">
-                <button onclick="setMode('single')" id="mode-s" class="flex-1 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white">SINGLE</button>
-                <button onclick="setMode('batch')" id="mode-b" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-500">BATCH</button>
+            <div id="batch-info" class="hidden bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl text-center">
+                <span class="text-[10px] font-bold text-blue-400 uppercase block">Batch Items Scanned</span>
+                <span id="batch-count" class="text-2xl font-black text-blue-500">0</span>
             </div>
 
-            <input id="ref-id" readonly placeholder="Waiting for scan..." class="w-full bg-transparent text-2xl font-mono font-bold text-blue-400 border-b border-slate-700 py-2 outline-none">
-
-            <div class="grid grid-cols-1 gap-3">
-                <input id="driver" class="bg-slate-900 p-3 rounded-xl text-sm border border-slate-700 outline-none focus:border-blue-500" placeholder="Driver Name">
-                <input id="dropoff" class="bg-slate-900 p-3 rounded-xl text-sm border border-slate-700 outline-none focus:border-blue-500" placeholder="Drop-off Location">
+            <div class="space-y-3">
+                <input id="driver" class="w-full bg-slate-900/50 p-4 rounded-xl text-sm border border-slate-700 focus:border-blue-500 outline-none transition-all" placeholder="Driver Name">
+                <input id="dropoff" class="w-full bg-slate-900/50 p-4 rounded-xl text-sm border border-slate-700 focus:border-blue-500 outline-none transition-all" placeholder="Drop-off Address">
             </div>
 
-            <button onclick="syncToGoogle()" id="btn-sync" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-black shadow-lg shadow-blue-900/20 active:scale-95 transition-all">
-                SYNC TO GOOGLE SHEET
+            <div class="relative">
+                <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Scanned ID</label>
+                <input id="ref-id" readonly class="w-full bg-transparent text-2xl font-mono font-bold text-blue-400 border-b border-slate-700 py-1 outline-none" placeholder="---">
+            </div>
+
+            <textarea id="notes" class="w-full bg-slate-900/50 p-4 rounded-xl text-sm border border-slate-700 focus:border-blue-500 outline-none h-20" placeholder="Flags/Notes (Optional)"></textarea>
+
+            <button onclick="submitData()" id="btn-submit" class="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl font-black shadow-lg shadow-blue-900/20 active:scale-95 transition-all text-sm tracking-widest uppercase">
+                Submit to Cloud
             </button>
+            
+            <button onclick="resetBatch()" id="btn-reset" class="hidden w-full text-slate-500 text-[10px] font-bold uppercase tracking-widest py-2">Clear Batch Data</button>
         </div>
     </div>
 
     <script>
-        const APPS_SCRIPT_URL = "AKfycbzMuoWYQgVLMEFZtJ3bYKuErzf8-wRf6V2w8IkfgpYU5oqjeXOJCf_C3nsrE2qg2_0U";
+        // PASTE YOUR GOOGLE DEPLOYMENT URL HERE
+        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbyxzLAkTQ2X4AUhlz2P7WT9zJ0EFfeUAnPA8aIXcJS5ezyPTNYwakcPuADuv9QE1jrb/exec";
+        
         let currentMode = 'single';
         let scanBuffer = [];
+        let html5QrCode;
 
-        // 1. Initialize Camera
-        const scanner = new Html5Qrcode("reader");
-        const config = { fps: 15, qrbox: { width: 250, height: 150 }, aspectRatio: 1.0 };
+        async function initApp() {
+            try {
+                // Pre-request camera permission
+                await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                document.getElementById('camera-gate').classList.add('hidden');
+                startScanner();
+            } catch (e) {
+                alert("Camera permission denied. Please check your browser settings.");
+            }
+        }
 
-        scanner.start({ facingMode: "environment" }, config, (text) => {
-            document.getElementById('ref-id').value = text;
-            if (navigator.vibrate) navigator.vibrate(50);
-            if (currentMode === 'batch') scanBuffer.push(text);
-        });
+        function startScanner() {
+            html5QrCode = new Html5Qrcode("reader");
+            const config = { fps: 20, qrbox: { width: 250, height: 150 }, aspectRatio: 1.0 };
+            html5QrCode.start({ facingMode: "environment" }, config, (text) => {
+                onScan(text);
+            });
+        }
+
+        function onScan(text) {
+            const idInput = document.getElementById('ref-id');
+            if (idInput.value === text) return; // Ignore repeat same scan
+            
+            idInput.value = text;
+            if (navigator.vibrate) navigator.vibrate(100);
+
+            if (currentMode === 'batch') {
+                if(!scanBuffer.includes(text)) {
+                    scanBuffer.push(text);
+                    updateBatchUI();
+                }
+            }
+        }
 
         function setMode(m) {
             currentMode = m;
-            document.getElementById('mode-s').className = m === 'single' ? "flex-1 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white" : "flex-1 py-2 text-xs font-bold rounded-lg text-slate-500";
-            document.getElementById('mode-b').className = m === 'batch' ? "flex-1 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white" : "flex-1 py-2 text-xs font-bold rounded-lg text-slate-500";
+            document.getElementById('btn-s').className = m === 'single' ? "flex-1 py-3 text-xs font-black rounded-xl active-mode" : "flex-1 py-3 text-xs font-black rounded-xl text-slate-500";
+            document.getElementById('btn-b').className = m === 'batch' ? "flex-1 py-3 text-xs font-black rounded-xl active-mode" : "flex-1 py-3 text-xs font-black rounded-xl text-slate-500";
+            document.getElementById('batch-info').classList.toggle('hidden', m === 'single');
+            document.getElementById('btn-reset').classList.toggle('hidden', m === 'single');
+            resetBatch();
         }
 
-        async function syncToGoogle() {
-            const id = document.getElementById('ref-id').value;
-            if(!id && scanBuffer.length === 0) return alert("Scan something first!");
+        function updateBatchUI() {
+            document.getElementById('batch-count').innerText = scanBuffer.length;
+        }
 
-            const btn = document.getElementById('btn-sync');
+        function resetBatch() {
+            scanBuffer = [];
+            updateBatchUI();
+            document.getElementById('ref-id').value = "";
+        }
+
+        async function submitData() {
+            const driver = document.getElementById('driver').value;
+            const address = document.getElementById('dropoff').value;
+            const singleId = document.getElementById('ref-id').value;
+
+            if (!driver || !address) return alert("Fill Driver & Address!");
+
+            const btn = document.getElementById('btn-submit');
             btn.innerText = "UPLOADING...";
             btn.disabled = true;
 
             const payload = {
-                id: currentMode === 'single' ? id : scanBuffer.join(', '),
-                driver: document.getElementById('driver').value,
-                dropoff: document.getElementById('dropoff').value,
-                mode: currentMode
+                id: currentMode === 'single' ? singleId : scanBuffer.join(', '),
+                mode: currentMode,
+                driver: driver,
+                dropoff: address,
+                notes: document.getElementById('notes').value
             };
 
-            // Using NO-CORS mode for standard GitHub-to-Google communication
             try {
-                await fetch(APPS_SCRIPT_URL, {
+                await fetch(GOOGLE_URL, {
                     method: "POST",
                     mode: "no-cors",
-                    cache: "no-cache",
-                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
                 });
                 
-                alert("Success! Check your Google Sheet.");
-                document.getElementById('ref-id').value = "";
-                scanBuffer = [];
+                alert("Success! Data sent to Google Sheet.");
+                resetBatch();
+                document.getElementById('notes').value = "";
             } catch (e) {
-                alert("Sync Error. Check your Script URL.");
+                alert("Error sending data. Check your internet connection.");
             }
-            
-            btn.innerText = "SYNC TO GOOGLE SHEET";
+
+            btn.innerText = "Submit to Cloud";
             btn.disabled = false;
         }
     </script>
