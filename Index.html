@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>G2G Cloud Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 p-4 min-h-screen">
+
+    <div class="max-w-md mx-auto space-y-6">
+        <header class="flex justify-between items-center py-2 border-b border-slate-800">
+            <h1 class="text-xl font-black tracking-tighter">G2G <span class="text-blue-500">CLOUD</span></h1>
+            <span id="status" class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono">OFFLINE</span>
+        </header>
+
+        <div id="reader" class="rounded-3xl overflow-hidden bg-black border-2 border-slate-800 shadow-2xl"></div>
+
+        <div class="bg-slate-800/50 p-5 rounded-3xl border border-slate-700 space-y-4 backdrop-blur-md">
+            <div class="flex bg-slate-900 p-1 rounded-xl">
+                <button onclick="setMode('single')" id="mode-s" class="flex-1 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white">SINGLE</button>
+                <button onclick="setMode('batch')" id="mode-b" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-500">BATCH</button>
+            </div>
+
+            <input id="ref-id" readonly placeholder="Waiting for scan..." class="w-full bg-transparent text-2xl font-mono font-bold text-blue-400 border-b border-slate-700 py-2 outline-none">
+
+            <div class="grid grid-cols-1 gap-3">
+                <input id="driver" class="bg-slate-900 p-3 rounded-xl text-sm border border-slate-700 outline-none focus:border-blue-500" placeholder="Driver Name">
+                <input id="dropoff" class="bg-slate-900 p-3 rounded-xl text-sm border border-slate-700 outline-none focus:border-blue-500" placeholder="Drop-off Location">
+            </div>
+
+            <button onclick="syncToGoogle()" id="btn-sync" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-black shadow-lg shadow-blue-900/20 active:scale-95 transition-all">
+                SYNC TO GOOGLE SHEET
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const APPS_SCRIPT_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL";
+        let currentMode = 'single';
+        let scanBuffer = [];
+
+        // 1. Initialize Camera
+        const scanner = new Html5Qrcode("reader");
+        const config = { fps: 15, qrbox: { width: 250, height: 150 }, aspectRatio: 1.0 };
+
+        scanner.start({ facingMode: "environment" }, config, (text) => {
+            document.getElementById('ref-id').value = text;
+            if (navigator.vibrate) navigator.vibrate(50);
+            if (currentMode === 'batch') scanBuffer.push(text);
+        });
+
+        function setMode(m) {
+            currentMode = m;
+            document.getElementById('mode-s').className = m === 'single' ? "flex-1 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white" : "flex-1 py-2 text-xs font-bold rounded-lg text-slate-500";
+            document.getElementById('mode-b').className = m === 'batch' ? "flex-1 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white" : "flex-1 py-2 text-xs font-bold rounded-lg text-slate-500";
+        }
+
+        async function syncToGoogle() {
+            const id = document.getElementById('ref-id').value;
+            if(!id && scanBuffer.length === 0) return alert("Scan something first!");
+
+            const btn = document.getElementById('btn-sync');
+            btn.innerText = "UPLOADING...";
+            btn.disabled = true;
+
+            const payload = {
+                id: currentMode === 'single' ? id : scanBuffer.join(', '),
+                driver: document.getElementById('driver').value,
+                dropoff: document.getElementById('dropoff').value,
+                mode: currentMode
+            };
+
+            // Using NO-CORS mode for standard GitHub-to-Google communication
+            try {
+                await fetch(APPS_SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    cache: "no-cache",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                
+                alert("Success! Check your Google Sheet.");
+                document.getElementById('ref-id').value = "";
+                scanBuffer = [];
+            } catch (e) {
+                alert("Sync Error. Check your Script URL.");
+            }
+            
+            btn.innerText = "SYNC TO GOOGLE SHEET";
+            btn.disabled = false;
+        }
+    </script>
+</body>
+</html>
