@@ -8,70 +8,92 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .active-mode { border: 2px solid #3b82f6; background: #eff6ff; color: #1e40af; }
-        #reader { width: 100% !important; border-radius: 1.5rem; overflow: hidden; background: #000; }
-        .duplicate-flash { animation: shake 0.5s ease-in-out; border: 2px solid #ef4444 !important; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        #reader { width: 100% !important; border-radius: 1.5rem; overflow: hidden; background: #000; transition: all 0.3s; }
+        .duplicate-flash { animation: shake 0.5s ease-in-out; border: 4px solid #ef4444 !important; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+        input::placeholder { color: #475569; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-10 font-sans">
 
     <div id="camera-gate" class="fixed inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-center p-8 text-center">
-        <h2 class="text-2xl font-black mb-6 uppercase tracking-tighter">G2G <span class="text-blue-500">Scanner</span></h2>
-        <button onclick="initApp()" class="w-full max-w-xs bg-blue-600 text-white py-5 rounded-3xl font-black shadow-2xl active:scale-95 transition-all">
-            START SESSION
+        <h2 class="text-3xl font-black mb-6 uppercase tracking-tighter">G2G <span class="text-blue-500">Scanner</span></h2>
+        <button onclick="initApp()" class="w-full max-w-xs bg-blue-600 text-white py-6 rounded-3xl font-black shadow-2xl active:scale-95 transition-all text-xl">
+            START SCANNING
         </button>
+        <p class="mt-6 text-slate-500 text-xs font-bold uppercase tracking-widest">Authorized Personnel Only</p>
     </div>
 
     <div class="max-w-md mx-auto p-4 space-y-4">
-        <header class="flex justify-between items-center">
-            <h1 class="text-xl font-black italic">G2G <span class="text-blue-500">PRO</span></h1>
-            <div id="sync-status" class="text-[9px] bg-slate-800 px-2 py-1 rounded-full text-emerald-500 font-bold">LIVE SYNC</div>
+        <header class="flex justify-between items-center px-1">
+            <h1 class="text-2xl font-black italic tracking-tighter">G2G <span class="text-blue-500">PRO</span></h1>
+            <div id="sync-status" class="text-[10px] bg-emerald-500/10 px-3 py-1 rounded-full text-emerald-500 font-bold border border-emerald-500/20">SYSTEM LIVE</div>
         </header>
 
-        <div class="flex bg-slate-800 p-1 rounded-2xl border border-slate-700">
-            <button id="btn-s" onclick="setMode('single')" class="flex-1 py-2 text-xs font-black rounded-xl active-mode">SINGLE</button>
-            <button id="btn-b" onclick="setMode('batch')" class="flex-1 py-2 text-xs font-black rounded-xl text-slate-500">BATCH</button>
+        <div class="flex bg-slate-800 p-1.5 rounded-2xl border border-slate-700 shadow-inner">
+            <button id="btn-s" onclick="setMode('single')" class="flex-1 py-2.5 text-xs font-black rounded-xl active-mode transition-all">SINGLE SCAN</button>
+            <button id="btn-b" onclick="setMode('batch')" class="flex-1 py-2.5 text-xs font-black rounded-xl text-slate-500 transition-all">BATCH MODE</button>
         </div>
 
         <div id="reader" class="shadow-2xl border-2 border-slate-800"></div>
 
-        <div id="form-container" class="bg-slate-800/50 p-5 rounded-3xl border border-slate-700 space-y-4 backdrop-blur-md">
+        <div id="form-container" class="bg-slate-800/40 p-5 rounded-3xl border border-slate-700/50 space-y-5 backdrop-blur-xl shadow-xl">
             
-            <div class="space-y-3">
+            <div class="space-y-4">
                 <div class="relative">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Driver</label>
-                    <input list="drivers" id="driver" onchange="savePersistentData()" class="w-full bg-slate-900/50 p-3 rounded-xl text-sm border border-slate-700 focus:border-blue-500 outline-none" placeholder="Search Driver...">
-                    <datalist id="drivers"></datalist>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Assigned Driver</label>
+                    <input list="drivers" id="driver" onchange="savePersistentData()" class="w-full bg-slate-900/80 p-4 rounded-2xl text-sm border border-slate-700 focus:border-blue-500 outline-none shadow-inner" placeholder="Search or select driver...">
+                    <datalist id="drivers">
+                        <option value="mohammed">
+                        <option value="kareem">
+                        <option value="kanjo">
+                        <option value="syamend">
+                        <option value="junaid">
+                    </datalist>
                 </div>
+
                 <div class="relative">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Drop-off Address</label>
-                    <input list="addresses" id="dropoff" onchange="savePersistentData()" class="w-full bg-slate-900/50 p-3 rounded-xl text-sm border border-slate-700 focus:border-blue-500 outline-none" placeholder="Search Location...">
-                    <datalist id="addresses"></datalist>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block text-left">Drop-off Destination</label>
+                    <input list="addresses" id="dropoff" onchange="savePersistentData()" dir="rtl" class="w-full bg-slate-900/80 p-4 rounded-2xl text-sm border border-slate-700 focus:border-blue-500 outline-none shadow-inner text-right font-medium" placeholder="گەڕان بۆ ناونیشان...">
+                    <datalist id="addresses">
+                        <option value="بەڕێوەبەرایەتی گشتی تەندروستی هەولێر">
+                        <option value="بەڕێوەبەرایەتی گشتی ئاو و ئاوەڕۆ">
+                        <option value="سەنتەری مەلافەندی بۆ پزیشکی خێزانی">
+                        <option value="سەرۆکایەتی شارەوانی هیران">
+                        <option value="بەڕێوەبەرایەتی شوێنەوار و کەلەپووری هەولێر">
+                        <option value="بەریوەبەرایەتی نەخشە دانانی ئاوەدانی هەولێر">
+                        <option value="بنکەی تەندروستی نازدار بامەڕنی">
+                        <option value="بنکەی تەندروستی محمد باجلان">
+                        <option value="بەڕێوەبەرایەتی وەرشەی ناوەندی">
+                    </datalist>
                 </div>
             </div>
 
-            <div class="relative">
-                <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Current Scan</label>
-                <input id="ref-id" readonly class="w-full bg-transparent text-xl font-mono font-bold text-blue-400 border-b border-slate-700 py-1 outline-none" placeholder="---">
+            <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700/30">
+                <label class="text-[10px] font-bold text-blue-500 uppercase block mb-1">Active Reference ID</label>
+                <input id="ref-id" readonly class="w-full bg-transparent text-2xl font-mono font-black text-blue-400 outline-none tracking-wider" placeholder="WAITING...">
             </div>
 
-            <button onclick="submitData()" id="btn-submit" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all uppercase tracking-widest text-sm">
-                Submit & Sync
+            <button onclick="submitData()" id="btn-submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-5 rounded-2xl font-black shadow-lg active:scale-[0.98] transition-all uppercase tracking-widest text-sm flex items-center justify-center gap-2">
+                <span>SUBMIT & SYNC TO CLOUD</span>
             </button>
             
-            <button onclick="clearSession()" class="w-full text-slate-500 text-[9px] font-bold uppercase tracking-widest py-1 opacity-50">Clear Saved Driver/Address</button>
+            <button onclick="clearSession()" class="w-full text-slate-600 text-[9px] font-bold uppercase tracking-widest pt-2 hover:text-rose-400 transition-colors">Clear Saved Driver / Address</button>
         </div>
 
-        <div class="bg-slate-900 p-4 rounded-3xl border border-slate-800">
-            <h3 class="text-[10px] font-bold text-slate-500 uppercase mb-3 tracking-widest">History (Last 5)</h3>
-            <div id="history-list" class="space-y-2 text-xs font-mono">
-                <div class="text-slate-600 italic">No scans yet.</div>
+        <div class="bg-slate-900/80 p-5 rounded-3xl border border-slate-800 shadow-lg">
+            <h3 class="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-[0.2em] flex justify-between">
+                <span>Session History</span>
+                <span class="text-blue-500">Last 5</span>
+            </h3>
+            <div id="history-list" class="space-y-3">
+                <div class="text-slate-700 text-xs italic text-center py-2">Scanner ready for first entry...</div>
             </div>
         </div>
     </div>
 
     <script>
-        // Replace with your Google URL
+        // PASTE YOUR UPDATED GOOGLE DEPLOYMENT URL HERE
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbyxzLAkTQ2X4AUhlz2P7WT9zJ0EFfeUAnPA8aIXcJS5ezyPTNYwakcPuADuv9QE1jrb/exec";
         
         let currentMode = 'single';
@@ -81,7 +103,6 @@
         let html5QrCode;
         let audioCtx;
 
-        // 1. Initialize App & Load Saved Info
         async function initApp() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             document.getElementById('camera-gate').classList.add('hidden');
@@ -90,14 +111,14 @@
             if(localStorage.getItem('g2g_driver')) document.getElementById('driver').value = localStorage.getItem('g2g_driver');
             if(localStorage.getItem('g2g_address')) document.getElementById('dropoff').value = localStorage.getItem('g2g_address');
 
-            // Fetch list updates from Google
+            // Fetch list of already scanned IDs from the sheet to prevent duplicates
             try {
                 const response = await fetch(`${GOOGLE_URL}?action=getSettings`);
                 const data = await response.json();
-                document.getElementById('drivers').innerHTML = data.drivers.map(d => `<option value="${d}">`).join('');
-                document.getElementById('addresses').innerHTML = data.addresses.map(a => `<option value="${a}">`).join('');
                 existingIDs = data.existingIDs;
-            } catch (e) { console.log("Offline mode: using cached data."); }
+            } catch (e) { 
+                console.log("Offline Check: Standard sync active."); 
+            }
             
             startScanner();
         }
@@ -108,57 +129,70 @@
         }
 
         function clearSession() {
-            localStorage.removeItem('g2g_driver');
-            localStorage.removeItem('g2g_address');
-            document.getElementById('driver').value = "";
-            document.getElementById('dropoff').value = "";
-            alert("Local storage cleared.");
+            if(confirm("Wipe saved driver and address?")) {
+                localStorage.removeItem('g2g_driver');
+                localStorage.removeItem('g2g_address');
+                document.getElementById('driver').value = "";
+                document.getElementById('dropoff').value = "";
+            }
         }
 
         function playBeep() {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.frequency.value = 800;
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            osc.frequency.value = 900;
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.4);
         }
 
         function startScanner() {
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: 250 }, onScan);
+            html5QrCode.start({ facingMode: "environment" }, { fps: 24, qrbox: {width: 280, height: 180} }, onScan);
         }
 
         function onScan(text) {
+            const container = document.getElementById('form-container');
+            
+            // Duplicate Logic
             if (existingIDs.includes(text) || scanBuffer.includes(text)) {
-                document.getElementById('form-container').classList.add('duplicate-flash');
-                setTimeout(() => document.getElementById('form-container').classList.remove('duplicate-flash'), 500);
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                container.classList.add('duplicate-flash');
+                setTimeout(() => container.classList.remove('duplicate-flash'), 500);
                 return; 
             }
+
             document.getElementById('ref-id').value = text;
             playBeep();
+            if (navigator.vibrate) navigator.vibrate(100);
+
             if (currentMode === 'batch') {
-                scanBuffer.push(text);
-                updateHistory(text);
+                if(!scanBuffer.includes(text)) {
+                    scanBuffer.push(text);
+                    updateHistory(text, "In Batch");
+                }
             }
         }
 
-        function updateHistory(id) {
-            history.unshift({ id, time: new Date().toLocaleTimeString() });
+        function updateHistory(id, status = "Ready") {
+            history.unshift({ id, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
             if (history.length > 5) history.pop();
-            document.getElementById('history-list').innerHTML = history.map(h => `
-                <div class="flex justify-between bg-slate-800/30 p-2 rounded-lg border border-slate-700/50">
-                    <span class="text-blue-400 font-bold">${h.id}</span>
-                    <span class="text-slate-500">${h.time}</span>
+            
+            const list = document.getElementById('history-list');
+            list.innerHTML = history.map(h => `
+                <div class="flex justify-between items-center bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 animate-in fade-in duration-500">
+                    <span class="text-blue-400 font-black font-mono tracking-tighter">${h.id}</span>
+                    <span class="text-[10px] text-slate-500 font-bold">${h.time}</span>
                 </div>
             `).join('');
         }
 
         function setMode(m) {
             currentMode = m;
-            document.getElementById('btn-s').className = m === 'single' ? "flex-1 py-2 text-xs font-black rounded-xl active-mode" : "flex-1 py-2 text-xs font-black rounded-xl text-slate-500";
-            document.getElementById('btn-b').className = m === 'batch' ? "flex-1 py-2 text-xs font-black rounded-xl active-mode" : "flex-1 py-2 text-xs font-black rounded-xl text-slate-500";
+            document.getElementById('btn-s').className = m === 'single' ? "flex-1 py-2.5 text-xs font-black rounded-xl active-mode" : "flex-1 py-2.5 text-xs font-black rounded-xl text-slate-500";
+            document.getElementById('btn-b').className = m === 'batch' ? "flex-1 py-2.5 text-xs font-black rounded-xl active-mode" : "flex-1 py-2.5 text-xs font-black rounded-xl text-slate-500";
             scanBuffer = [];
+            document.getElementById('ref-id').value = "";
         }
 
         async function submitData() {
@@ -166,27 +200,43 @@
             const address = document.getElementById('dropoff').value;
             const id = document.getElementById('ref-id').value;
 
-            if (!driver || !address || (!id && scanBuffer.length === 0)) return alert("Missing Info!");
+            if (!driver || !address || (!id && scanBuffer.length === 0)) {
+                alert("⚠️ Error: Check Driver, Address, and Scan ID.");
+                return;
+            }
 
             const btn = document.getElementById('btn-submit');
-            btn.innerText = "SYNCING...";
+            btn.innerHTML = `<span>SYNCING...</span>`;
             btn.disabled = true;
 
             const payload = {
                 id: currentMode === 'single' ? id : scanBuffer.join(', '),
-                driver, dropoff: address, mode: currentMode
+                driver, 
+                dropoff: address, 
+                mode: currentMode
             };
 
             try {
+                // Using no-cors for GitHub -> Google Cloud communication
                 await fetch(GOOGLE_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+                
                 if(currentMode === 'single') updateHistory(id);
+                
+                // Add to local duplicate check list
                 existingIDs.push(...(currentMode === 'single' ? [id] : scanBuffer));
+                
+                // Reset Scan Field
                 document.getElementById('ref-id').value = "";
                 scanBuffer = [];
-                // WE DO NOT CLEAR DRIVER OR ADDRESS HERE ANYMORE!
-            } catch (e) { alert("Sync Error!"); }
+                
+                // Success Vibration
+                if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+                
+            } catch (e) { 
+                alert("Cloud Connection Lost. Check Internet."); 
+            }
 
-            btn.innerText = "Submit & Sync";
+            btn.innerHTML = `<span>SUBMIT & SYNC TO CLOUD</span>`;
             btn.disabled = false;
         }
     </script>
