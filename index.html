@@ -3,162 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>G2G Master Scanner</title>
+    <title>G2G Master Scanner Pro</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .active-mode { border: 2px solid #3b82f6; background: #eff6ff; color: #1e40af; }
         #reader { width: 100% !important; border-radius: 1.5rem; overflow: hidden; background: #000; }
-        #reader video { object-fit: cover; }
+        .duplicate-flash { animation: shake 0.5s ease-in-out; border: 2px solid #ef4444 !important; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen pb-10">
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-10 font-sans">
 
     <div id="camera-gate" class="fixed inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-center p-8 text-center">
-        <div class="mb-6 bg-blue-500/10 p-6 rounded-full">
-            <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        </div>
-        <h2 class="text-2xl font-black mb-2">Camera Access Required</h2>
-        <p class="text-slate-400 text-sm mb-8">Tap below to enable the scanner and start processing items.</p>
-        <button onclick="initApp()" class="w-full max-w-xs bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl font-black shadow-xl shadow-blue-900/40 transition-all active:scale-95">
-            OPEN SCANNER
+        <h2 class="text-2xl font-black mb-6 uppercase tracking-tighter">G2G <span class="text-blue-500">Scanner</span></h2>
+        <button onclick="initApp()" class="w-full max-w-xs bg-blue-600 text-white py-5 rounded-3xl font-black shadow-2xl active:scale-95 transition-all">
+            START SESSION
         </button>
     </div>
 
     <div class="max-w-md mx-auto p-4 space-y-4">
-        <header class="flex justify-between items-center py-2">
-            <h1 class="text-xl font-black tracking-tighter">G2G <span class="text-blue-500">MASTER</span></h1>
-            <div id="status-pill" class="text-[10px] bg-slate-800 px-3 py-1 rounded-full text-slate-400 font-bold uppercase tracking-widest">Ready</div>
+        <header class="flex justify-between items-center">
+            <h1 class="text-xl font-black italic">G2G <span class="text-blue-500">PRO</span></h1>
+            <div id="sync-status" class="text-[9px] bg-slate-800 px-2 py-1 rounded-full text-emerald-500 font-bold">LIVE SYNC</div>
         </header>
 
         <div class="flex bg-slate-800 p-1 rounded-2xl border border-slate-700">
-            <button id="btn-s" onclick="setMode('single')" class="flex-1 py-3 text-xs font-black rounded-xl active-mode transition-all">SINGLE</button>
-            <button id="btn-b" onclick="setMode('batch')" class="flex-1 py-3 text-xs font-black rounded-xl text-slate-500 transition-all">BATCH</button>
+            <button id="btn-s" onclick="setMode('single')" class="flex-1 py-2 text-xs font-black rounded-xl active-mode">SINGLE</button>
+            <button id="btn-b" onclick="setMode('batch')" class="flex-1 py-2 text-xs font-black rounded-xl text-slate-500">BATCH</button>
         </div>
 
         <div id="reader" class="shadow-2xl border-2 border-slate-800"></div>
 
-        <div class="bg-slate-800/50 p-5 rounded-3xl border border-slate-700 space-y-4 backdrop-blur-md">
-            <div id="batch-info" class="hidden bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl text-center">
-                <span class="text-[10px] font-bold text-blue-400 uppercase block">Batch Items Scanned</span>
-                <span id="batch-count" class="text-2xl font-black text-blue-500">0</span>
-            </div>
-
+        <div id="form-container" class="bg-slate-800/50 p-5 rounded-3xl border border-slate-700 space-y-4 backdrop-blur-md">
+            
             <div class="space-y-3">
-                <input id="driver" class="w-full bg-slate-900/50 p-4 rounded-xl text-sm border border-slate-700 focus:border-blue-500 outline-none transition-all" placeholder="Driver Name">
-                <input id="dropoff" class="w-full bg-slate-900/50 p-4 rounded-xl text-sm border border-slate-700 focus:border-blue-500 outline-none transition-all" placeholder="Drop-off Address">
+                <div class="relative">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Driver</label>
+                    <input list="drivers" id="driver" onchange="savePersistentData()" class="w-full bg-slate-900/50 p-3 rounded-xl text-sm border border-slate-700 focus:border-blue-500 outline-none" placeholder="Search Driver...">
+                    <datalist id="drivers"></datalist>
+                </div>
+                <div class="relative">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Drop-off Address</label>
+                    <input list="addresses" id="dropoff" onchange="savePersistentData()" class="w-full bg-slate-900/50 p-3 rounded-xl text-sm border border-slate-700 focus:border-blue-500 outline-none" placeholder="Search Location...">
+                    <datalist id="addresses"></datalist>
+                </div>
             </div>
 
             <div class="relative">
-                <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Scanned ID</label>
-                <input id="ref-id" readonly class="w-full bg-transparent text-2xl font-mono font-bold text-blue-400 border-b border-slate-700 py-1 outline-none" placeholder="---">
+                <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Current Scan</label>
+                <input id="ref-id" readonly class="w-full bg-transparent text-xl font-mono font-bold text-blue-400 border-b border-slate-700 py-1 outline-none" placeholder="---">
             </div>
 
-            <textarea id="notes" class="w-full bg-slate-900/50 p-4 rounded-xl text-sm border border-slate-700 focus:border-blue-500 outline-none h-20" placeholder="Flags/Notes (Optional)"></textarea>
-
-            <button onclick="submitData()" id="btn-submit" class="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl font-black shadow-lg shadow-blue-900/20 active:scale-95 transition-all text-sm tracking-widest uppercase">
-                Submit to Cloud
+            <button onclick="submitData()" id="btn-submit" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all uppercase tracking-widest text-sm">
+                Submit & Sync
             </button>
             
-            <button onclick="resetBatch()" id="btn-reset" class="hidden w-full text-slate-500 text-[10px] font-bold uppercase tracking-widest py-2">Clear Batch Data</button>
+            <button onclick="clearSession()" class="w-full text-slate-500 text-[9px] font-bold uppercase tracking-widest py-1 opacity-50">Clear Saved Driver/Address</button>
+        </div>
+
+        <div class="bg-slate-900 p-4 rounded-3xl border border-slate-800">
+            <h3 class="text-[10px] font-bold text-slate-500 uppercase mb-3 tracking-widest">History (Last 5)</h3>
+            <div id="history-list" class="space-y-2 text-xs font-mono">
+                <div class="text-slate-600 italic">No scans yet.</div>
+            </div>
         </div>
     </div>
 
     <script>
-        // PASTE YOUR GOOGLE DEPLOYMENT URL HERE
+        // Replace with your Google URL
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbyxzLAkTQ2X4AUhlz2P7WT9zJ0EFfeUAnPA8aIXcJS5ezyPTNYwakcPuADuv9QE1jrb/exec";
         
         let currentMode = 'single';
         let scanBuffer = [];
+        let history = [];
+        let existingIDs = [];
         let html5QrCode;
+        let audioCtx;
 
+        // 1. Initialize App & Load Saved Info
         async function initApp() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            document.getElementById('camera-gate').classList.add('hidden');
+            
+            // Load persistent data from Browser Memory
+            if(localStorage.getItem('g2g_driver')) document.getElementById('driver').value = localStorage.getItem('g2g_driver');
+            if(localStorage.getItem('g2g_address')) document.getElementById('dropoff').value = localStorage.getItem('g2g_address');
+
+            // Fetch list updates from Google
             try {
-                // Pre-request camera permission
-                await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                document.getElementById('camera-gate').classList.add('hidden');
-                startScanner();
-            } catch (e) {
-                alert("Camera permission denied. Please check your browser settings.");
-            }
+                const response = await fetch(`${GOOGLE_URL}?action=getSettings`);
+                const data = await response.json();
+                document.getElementById('drivers').innerHTML = data.drivers.map(d => `<option value="${d}">`).join('');
+                document.getElementById('addresses').innerHTML = data.addresses.map(a => `<option value="${a}">`).join('');
+                existingIDs = data.existingIDs;
+            } catch (e) { console.log("Offline mode: using cached data."); }
+            
+            startScanner();
+        }
+
+        function savePersistentData() {
+            localStorage.setItem('g2g_driver', document.getElementById('driver').value);
+            localStorage.setItem('g2g_address', document.getElementById('dropoff').value);
+        }
+
+        function clearSession() {
+            localStorage.removeItem('g2g_driver');
+            localStorage.removeItem('g2g_address');
+            document.getElementById('driver').value = "";
+            document.getElementById('dropoff').value = "";
+            alert("Local storage cleared.");
+        }
+
+        function playBeep() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.value = 800;
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         }
 
         function startScanner() {
             html5QrCode = new Html5Qrcode("reader");
-            const config = { fps: 20, qrbox: { width: 250, height: 150 }, aspectRatio: 1.0 };
-            html5QrCode.start({ facingMode: "environment" }, config, (text) => {
-                onScan(text);
-            });
+            html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: 250 }, onScan);
         }
 
         function onScan(text) {
-            const idInput = document.getElementById('ref-id');
-            if (idInput.value === text) return; // Ignore repeat same scan
-            
-            idInput.value = text;
-            if (navigator.vibrate) navigator.vibrate(100);
-
-            if (currentMode === 'batch') {
-                if(!scanBuffer.includes(text)) {
-                    scanBuffer.push(text);
-                    updateBatchUI();
-                }
+            if (existingIDs.includes(text) || scanBuffer.includes(text)) {
+                document.getElementById('form-container').classList.add('duplicate-flash');
+                setTimeout(() => document.getElementById('form-container').classList.remove('duplicate-flash'), 500);
+                return; 
             }
+            document.getElementById('ref-id').value = text;
+            playBeep();
+            if (currentMode === 'batch') {
+                scanBuffer.push(text);
+                updateHistory(text);
+            }
+        }
+
+        function updateHistory(id) {
+            history.unshift({ id, time: new Date().toLocaleTimeString() });
+            if (history.length > 5) history.pop();
+            document.getElementById('history-list').innerHTML = history.map(h => `
+                <div class="flex justify-between bg-slate-800/30 p-2 rounded-lg border border-slate-700/50">
+                    <span class="text-blue-400 font-bold">${h.id}</span>
+                    <span class="text-slate-500">${h.time}</span>
+                </div>
+            `).join('');
         }
 
         function setMode(m) {
             currentMode = m;
-            document.getElementById('btn-s').className = m === 'single' ? "flex-1 py-3 text-xs font-black rounded-xl active-mode" : "flex-1 py-3 text-xs font-black rounded-xl text-slate-500";
-            document.getElementById('btn-b').className = m === 'batch' ? "flex-1 py-3 text-xs font-black rounded-xl active-mode" : "flex-1 py-3 text-xs font-black rounded-xl text-slate-500";
-            document.getElementById('batch-info').classList.toggle('hidden', m === 'single');
-            document.getElementById('btn-reset').classList.toggle('hidden', m === 'single');
-            resetBatch();
-        }
-
-        function updateBatchUI() {
-            document.getElementById('batch-count').innerText = scanBuffer.length;
-        }
-
-        function resetBatch() {
+            document.getElementById('btn-s').className = m === 'single' ? "flex-1 py-2 text-xs font-black rounded-xl active-mode" : "flex-1 py-2 text-xs font-black rounded-xl text-slate-500";
+            document.getElementById('btn-b').className = m === 'batch' ? "flex-1 py-2 text-xs font-black rounded-xl active-mode" : "flex-1 py-2 text-xs font-black rounded-xl text-slate-500";
             scanBuffer = [];
-            updateBatchUI();
-            document.getElementById('ref-id').value = "";
         }
 
         async function submitData() {
             const driver = document.getElementById('driver').value;
             const address = document.getElementById('dropoff').value;
-            const singleId = document.getElementById('ref-id').value;
+            const id = document.getElementById('ref-id').value;
 
-            if (!driver || !address) return alert("Fill Driver & Address!");
+            if (!driver || !address || (!id && scanBuffer.length === 0)) return alert("Missing Info!");
 
             const btn = document.getElementById('btn-submit');
-            btn.innerText = "UPLOADING...";
+            btn.innerText = "SYNCING...";
             btn.disabled = true;
 
             const payload = {
-                id: currentMode === 'single' ? singleId : scanBuffer.join(', '),
-                mode: currentMode,
-                driver: driver,
-                dropoff: address,
-                notes: document.getElementById('notes').value
+                id: currentMode === 'single' ? id : scanBuffer.join(', '),
+                driver, dropoff: address, mode: currentMode
             };
 
             try {
-                await fetch(GOOGLE_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    body: JSON.stringify(payload)
-                });
-                
-                alert("Success! Data sent to Google Sheet.");
-                resetBatch();
-                document.getElementById('notes').value = "";
-            } catch (e) {
-                alert("Error sending data. Check your internet connection.");
-            }
+                await fetch(GOOGLE_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+                if(currentMode === 'single') updateHistory(id);
+                existingIDs.push(...(currentMode === 'single' ? [id] : scanBuffer));
+                document.getElementById('ref-id').value = "";
+                scanBuffer = [];
+                // WE DO NOT CLEAR DRIVER OR ADDRESS HERE ANYMORE!
+            } catch (e) { alert("Sync Error!"); }
 
-            btn.innerText = "Submit to Cloud";
+            btn.innerText = "Submit & Sync";
             btn.disabled = false;
         }
     </script>
